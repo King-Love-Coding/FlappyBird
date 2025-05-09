@@ -25,26 +25,28 @@ birdImg.src = "Images/bird.png";
 const pipeImg = new Image();
 pipeImg.src = "Images/pipe.png";
 
-
 const flapSound = new Audio("Sound/Flap.mp3");
 const pointSound = new Audio("Sound/point.mp3");
 const hitSound = new Audio("Sound/Hit.mp3");
 const dieSound = new Audio("Sound/Die.mp3");
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && gameStarted && !gameOver) {
-    bird.velocity = JUMP;
-    if (soundOn) playSound(flapSound);
+  if (e.code === "Space") {
+    handleJump();
   }
 });
 
+document.addEventListener("touchstart", () => {
+  handleJump();
+});
 
-document.addEventListener("touchstart", (e) => {
-  if (gameStarted && !gameOver) {
+function handleJump() {
+  if (!gameStarted) return;
+  if (!gameOver) {
     bird.velocity = JUMP;
     if (soundOn) playSound(flapSound);
   }
-});
+}
 
 restartBtn.onclick = () => {
   resetGame();
@@ -57,27 +59,26 @@ soundToggle.onclick = () => {
 };
 
 function resetGame() {
-    bird = { x: 100, y: 200, width: 50, height: 40, velocity: 0 };
-    pipes = [];
-    score = 0;
-    gameOver = false;
-    gameStarted = false;
-    soundOn = true;
-    countdown = 3;
-  
-    restartBtn.style.display = "none"; 
-  
-    canvas.width = window.innerWidth;  
-    canvas.height = window.innerHeight; 
-  }
-  
+  bird = { x: 100, y: 200, width: 50, height: 40, velocity: 0 };
+  pipes = [];
+  score = 0;
+  gameOver = false;
+  gameStarted = false;
+  soundOn = true;
+  countdown = 3;
+
+  restartBtn.style.display = "none";
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
 function countdownStart() {
-  const countdownInterval = setInterval(() => {
+  const interval = setInterval(() => {
     countdown--;
     if (countdown === 0) {
       gameStarted = true;
-      clearInterval(countdownInterval);
+      clearInterval(interval);
     }
   }, 1000);
 }
@@ -105,17 +106,15 @@ function drawPipes() {
 }
 
 function triggerGameOver() {
-    if (!gameOver) {
-      gameOver = true;
-      if (soundOn) {
-        playSound(hitSound);
-        setTimeout(() => playSound(dieSound), 300);
-      }
-  
-      restartBtn.style.display = "block";
+  if (!gameOver) {
+    gameOver = true;
+    if (soundOn) {
+      playSound(hitSound);
+      setTimeout(() => playSound(dieSound), 300);
     }
+    restartBtn.style.display = "block";
   }
-  
+}
 
 function update() {
   if (gameOver || !gameStarted) return;
@@ -168,7 +167,6 @@ function draw() {
     ctx.textAlign = "center";
     ctx.fillText(countdown > 0 ? countdown : "", canvas.width / 2, canvas.height / 2);
   }
-  
 
   if (gameOver) {
     ctx.fillStyle = "black";
@@ -176,7 +174,6 @@ function draw() {
     ctx.textAlign = "center";
     ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
   }
-  
 }
 
 function gameLoop() {
@@ -191,19 +188,17 @@ function playSound(sound) {
   sound.play();
 }
 
-
 function goFullScreen() {
   if (canvas.requestFullscreen) {
     canvas.requestFullscreen();
   } else if (canvas.mozRequestFullScreen) {
-    canvas.mozRequestFullScreen(); 
+    canvas.mozRequestFullScreen();
   } else if (canvas.webkitRequestFullscreen) {
-    canvas.webkitRequestFullscreen(); 
+    canvas.webkitRequestFullscreen();
   }
 }
 
 goFullScreen();
-
 createPipe();
 countdownStart();
 gameLoop();
